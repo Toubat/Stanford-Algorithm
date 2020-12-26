@@ -1,17 +1,19 @@
 import random
 
-def randomSelection(arr, order): # average runtime O(n)
+def randomSelection(arr, left, right, order): # average runtime O(n)
+    order -= 1
     if len(arr) == 1:
         return arr[0]
-    idx = random.randint(0, len(arr) - 1)
-    pivot = arr[idx]
-    linearPartition(arr, pivot, 0, len(arr) - 1)
-    if order - 1 == idx:
+    swap(arr, random.randint(left, right), left)
+    pivot = arr[left]
+    linearPartition(arr, pivot, left, right)
+    idx = arr.index(pivot)
+    if order == idx:
         return pivot
-    elif order - 1 > idx:
-        return randomSelection(arr[:idx], order)
+    elif order < idx:
+        return randomSelection(arr, left, idx - 1, order + 1)
     else:
-        return randomSelection(arr[idx+1:], order - idx - 1)
+        return randomSelection(arr, idx + 1, right, order + 1)
 
 
 def deterministicSelection(arr, order): # average runtime O(n)
@@ -33,9 +35,13 @@ def swap(array, i, j):
     return 0
 
 def main():
-    lst = [3, 8, 2, 5, 1, 4, 7, 6]
-    num = randomSelection(lst, 1)
-    print(num)
+    # 500 unittests
+    lst = list(range(1, 101))
+    for i in range(500):
+        random.shuffle(lst)
+        order = random.randint(1, 100)
+        num_in_order = randomSelection(lst, 0, len(lst) - 1, order)
+        assert num_in_order == order
 
 
 if __name__ == '__main__':
