@@ -8,11 +8,13 @@ src = 0
 class DirectedGraph:
 
     def __init__(self, input_list, reverse=False):
+        self.list = input_list
         self.graph = {}
         self.num_vertices = 0
         self.constructGraph(input_list, reverse)
-        self.orders = [0 for _ in range(self.num_vertices + 1)]
-        self.explored = [False for _ in range(self.num_vertices + 1)]
+        self.orders = [0 for _ in range(self.num_vertices + 1)]  # finishing time -> vertex
+        # self.leaders = [0 for _ in range(self.num_vertices + 1)]  # vertex -> leading node
+        self.explored = [False for _ in range(self.num_vertices + 1)]  # vertex -> explored ? 1 : 0
 
     def constructGraph(self, input_list, reverse=False):
         self.graph = {}
@@ -35,33 +37,60 @@ class DirectedGraph:
 
     def __str__(self):
         info = f"Graph with {self.num_vertices} vertices\n"
-        for i in range(1, 11):
+        for i in range(1, 10):
             info += f"Vertex {i} : {str(self.graph[i])}\n"
 
         return info
 
-    def firstDFS(self, start, arr):
-        global time
+    def computeTopSSCs(self, topN=5):
+        global time, src
+
+        topNs = [0 for _ in range(topN + 1)]
+        for v in range(1, self.num_vertices + 1):
+            if not self.explored[v]:
+                self.iterativeDFS(v, topNs, first=True)
+        print("Processing ... The 1st DFS-Loop finished!")
+        self.reset()
+        for time in reversed(range(1, self.num_vertices + 1)):
+            v = self.orders[time]
+            if not self.explored[v]:
+                src = v
+                self.iterativeDFS(v, topNs, first=False)
+        print("Processing ... The 2nd DFS-Loop finished!")
+
+        return f"Top {topN} strongly connected components are of size {str(topNs[:-1])}"
+
+    def iterativeDFS(self, start, topNs, first=True):
+        global time, src
+
         self.explored[start] = True
-        arr.append(start)
+        # self.leaders[start] = src
+        size_component = 1
+        # arr.append(start)
         stack = deque()
         stack.append(start)
         while len(stack):
             while self.graph[stack[-1]]:
                 v = stack[-1]
-                # delete the last connected vertex to v iff it has been explored
+                # delete the last connected vertex to v if it has been explored
                 while self.graph[v] and self.explored[self.graph[v][-1]]:
                     self.graph[v].pop()
                 if self.graph[v]:
                     # let v be an new vertex never explored before
                     v = self.graph[v].pop()
                     self.explored[v] = True
-                    arr.append(v)
+                    # self.leaders[v] = src
+                    size_component += 1
+                    # arr.append(v)
                     stack.append(v)
             # let v be vertex where all its connected nodes has been exhausted
             v = stack.pop()
-            time += 1
-            self.orders[v] = time
+            if first:
+                time += 1
+                self.orders[time] = v
+        if not first:
+            topNs[-1] = size_component
+            topNs.sort(reverse=True)
 
         return 0
 
@@ -73,20 +102,16 @@ class DirectedGraph:
             if not self.explored[node]:
                 self.recursiveDFS(node, arr)
         time += 1
-        self.orders[start] = time
+        self.orders[time] = start
 
         return 0
 
-    def computeSSCs(self):
-        pass
-
-    def reset(self, input_list, reverse=False):
+    def reset(self, reverse=False):
         global time, src
         time, src = 0, 0
         self.graph = {}
         self.num_vertices = 0
-        self.constructGraph(input_list, reverse)
-        self.orders = [0 for _ in range(self.num_vertices + 1)]
+        self.constructGraph(self.list, reverse)
         self.explored = [False for _ in range(self.num_vertices + 1)]
 
 
@@ -105,25 +130,30 @@ def initInput(lst, path):
 
 def main():
     lst = []
-    initInput(lst, '2.txt')
-    graph = DirectedGraph(lst)
-    print(graph)
-
-    for i in range(1, 13):
+    initInput(lst, 'assign5_input.txt')
+    graph = DirectedGraph(lst, reverse=True)
+    '''
+    for i in range(1, 10):
         arr1, arr2 = [], []
-        graph.firstDFS(i, arr1)
+        graph.iterativeDFS(i, arr1)
         order1 = graph.orders[:]
-        graph.reset(lst)
+        graph.reset()
         graph.recursiveDFS(i, arr2)
         order2 = graph.orders[:]
-        graph.reset(lst)
+        graph.reset()
         assert len(arr1) == len(arr2)
+        print(f"i : {i}")
+
         for j in range(len(arr1)):
             assert arr1[j] == arr2[j]
         for j in range(len(order1)):
             assert order1[j] == order2[j]
 
     print("All Success!")
+    '''
+    print(graph.computeTopSSCs())
+    # print(graph.orders)
+    # print(graph.leaders)
 
     return 0
 
