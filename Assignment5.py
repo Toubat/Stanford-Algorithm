@@ -13,7 +13,6 @@ class DirectedGraph:
         self.num_vertices = 0
         self.constructGraph(input_list, reverse)
         self.orders = [0 for _ in range(self.num_vertices + 1)]  # finishing time -> vertex
-        # self.leaders = [0 for _ in range(self.num_vertices + 1)]  # vertex -> leading node
         self.explored = [False for _ in range(self.num_vertices + 1)]  # vertex -> explored ? 1 : 0
 
     def constructGraph(self, input_list, reverse=False):
@@ -64,9 +63,7 @@ class DirectedGraph:
         global time, src
 
         self.explored[start] = True
-        # self.leaders[start] = src
         size_component = 1
-        # arr.append(start)
         stack = deque()
         stack.append(start)
         while len(stack):
@@ -79,9 +76,7 @@ class DirectedGraph:
                     # let v be an new vertex never explored before
                     v = self.graph[v].pop()
                     self.explored[v] = True
-                    # self.leaders[v] = src
                     size_component += 1
-                    # arr.append(v)
                     stack.append(v)
             # let v be vertex where all its connected nodes has been exhausted
             v = stack.pop()
@@ -151,7 +146,7 @@ def main():
 
     print("All Success!")
     '''
-    print(graph.computeTopSSCs())
+    print(graph.computeTopSSCs(5))
     # print(graph.orders)
     # print(graph.leaders)
 
