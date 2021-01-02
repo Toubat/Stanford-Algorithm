@@ -1,4 +1,5 @@
 # Assignment 6
+from structure_utils import *
 
 class WeightedGraph:
 
@@ -13,7 +14,28 @@ class WeightedGraph:
 
         return info
 
-    def computeShortestPath(self, start):
+    def fastDijkstraShortestPath(self, start):
+        visited = {start: True}
+        min_distances = {vertex: float('inf') for vertex in self.graph.keys()}
+        min_distances[start] = 0
+        minHeap = MinHeap([Node(key, float('inf')) for key in self.graph.keys()])
+        minHeap.update(start, 0)
+        while len(visited) < self.num_vertices:
+            node = minHeap.deleteMin()
+            vertex, min_distance = node.key, node.value
+            visited[vertex] = True
+            for v in self.graph[vertex]:
+                if v not in visited:
+                    edge_length = self.graph[vertex][v]
+                    d = min_distance + edge_length
+                    current_distance = min_distances[v]
+                    if d < current_distance:
+                        min_distances[v] = d
+                        minHeap.update(v, d)
+
+        return min_distances
+
+    def dijkstraShortestPath(self, start):
         visited = {start: 0}
         shortest_paths = {start: [start]}
         while len(visited) < self.num_vertices:
@@ -58,15 +80,22 @@ def initInput(adjacency_list, path):
 
 def main():
     adjacency_list = {}
-    info = []
-
     initInput(adjacency_list, 'assign6_input.txt')
-    graph = WeightedGraph(adjacency_list)
-    visited, shortest_paths = graph.computeShortestPath(1)
 
+    info = []
+    graph = WeightedGraph(adjacency_list)
+    shortest_paths = graph.fastDijkstraShortestPath(1)
     vertices = [7, 37, 59, 82, 99, 115, 133, 165, 188, 197]
     for vertex in vertices:
-        info.append(str(visited[vertex]))
+        info.append(str(shortest_paths[vertex]))
+    info = ','.join(info)
+    print(f'Shortest-path of selected vertices are: {info}')  # info = 2599,2610,2947,2052,2367,2399,2029,2442,2505,3068
+
+    info = []
+    shortest_paths, _ = graph.dijkstraShortestPath(1)
+    vertices = [7, 37, 59, 82, 99, 115, 133, 165, 188, 197]
+    for vertex in vertices:
+        info.append(str(shortest_paths[vertex]))
     info = ','.join(info)
     print(f'Shortest-path of selected vertices are: {info}')  # info = 2599,2610,2947,2052,2367,2399,2029,2442,2505,3068
 
