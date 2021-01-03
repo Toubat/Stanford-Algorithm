@@ -16,8 +16,8 @@ class WeightedGraph:
 
     def fastDijkstraShortestPath(self, start):
         visited = {start: True}
-        min_distances = {vertex: float('inf') for vertex in self.graph.keys()}
-        min_distances[start] = 0
+        shortest_paths = {vertex: float('inf') for vertex in self.graph.keys()}
+        shortest_paths[start] = 0
         minHeap = MinHeap([Node(key, float('inf')) for key in self.graph.keys()])
         minHeap.update(start, 0)
         while len(visited) < self.num_vertices:
@@ -28,12 +28,12 @@ class WeightedGraph:
                 if v not in visited:
                     edge_length = self.graph[vertex][v]
                     d = min_distance + edge_length
-                    current_distance = min_distances[v]
+                    current_distance = shortest_paths[v]
                     if d < current_distance:
-                        min_distances[v] = d
+                        shortest_paths[v] = d
                         minHeap.update(v, d)
 
-        return min_distances
+        return shortest_paths
 
     def dijkstraShortestPath(self, start):
         visited = {start: 0}
