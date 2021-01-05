@@ -8,6 +8,101 @@ class Node:
         self.value = value
 
 
+class BST:
+
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+
+    def insert(self, value):
+        node = self
+        while True:
+            if value < node.value:
+                if node.left is not None:
+                    node = node.left
+                else:
+                    node.left = BST(value)
+                    break
+            else:
+                if node.right is not None:
+                    node = node.right
+                else:
+                    node.right = BST(value)
+                    break
+
+        return 0
+
+    def contains(self, value):
+        node = self
+        while node is not None:
+            if value < node.value:
+                node = node.left
+            elif value > node.value:
+                node = node.right
+            else:
+                return True
+
+        return False
+
+    def remove(self, value):
+        parent, node = None, self
+        while node is not None:
+            if value < node.value:
+                parent = node
+                node = node.left
+            elif value > node.value:
+                parent = node
+                node = node.right
+            else:
+                break
+        if node is not None:
+            # if node has two children
+            if node.left is not None and node.right is not None:
+                node.value = node.right.deleteMin(node)
+            # if node is root node
+            elif parent is None:
+                # root has left child
+                if node.left is not None:
+                    node.value = node.left.value
+                    node.right = node.left.right
+                    node.left = node.left.left
+                # root has right child
+                elif node.right is not None:
+                    node.value = node.right.value
+                    node.left = node.right.left
+                    node.right = node.right.right
+            # node has left child
+            elif node.left is not None:
+                parent.replace(node, node.left)
+            # node has right child
+            elif node.right is not None:
+                parent.replace(node, node.right)
+            # node is leave node
+            else:
+                parent.replace(node, None)
+
+        # Do not edit the return statement of this method.
+        return self
+
+    def replace(self, node, new_node):
+        if node is self.left:
+            self.left = new_node
+        else:
+            self.right = new_node
+
+        return 0
+
+    def deleteMin(self, parent):
+        node = self
+        while node.left is not None:
+            parent = node
+            node = node.left
+        parent.replace(node, None)
+
+        return node.value
+
+
 class Heap:
 
     def __init__(self, array):
@@ -20,6 +115,25 @@ class Heap:
 
     def __len__(self):
         return len(self.heap)
+
+    def __str__(self):
+        info = []
+        count = 1
+        for node in self.heap:
+            node_info = f'{node.key}: {node.value}'
+            if count % 10 == 0:
+                node_info += '\n'
+            else:
+                node_info += '     '
+            count += 1
+            info.append(node_info)
+
+        return ''.join(info)
+
+    __repr__ = __str__
+
+    def peek(self):
+        return self.heap[0].key
 
     @staticmethod
     def leftChild(index, heap):
@@ -63,25 +177,6 @@ class MinHeap(Heap):
             self.siftDown(index, array)
 
         return array
-
-    def __str__(self):
-        info = []
-        count = 1
-        for node in self.heap:
-            node_info = f'{node.key}: {node.value}'
-            if count % 10 == 0:
-                node_info += '\n'
-            else:
-                node_info += '     '
-            count += 1
-            info.append(node_info)
-
-        return ''.join(info)
-
-    __repr__ = __str__
-
-    def peek(self):
-        return self.heap[0].key
 
     def insert(self, key, value):
         node = Node(key, value)
@@ -157,25 +252,6 @@ class MaxHeap(Heap):
             self.siftDown(index, array)
 
         return array
-
-    def __str__(self):
-        info = []
-        count = 1
-        for node in self.heap:
-            node_info = f'{node.key}: {node.value}'
-            if count % 10 == 0:
-                node_info += '\n'
-            else:
-                node_info += '     '
-            count += 1
-            info.append(node_info)
-
-        return ''.join(info)
-
-    __repr__ = __str__
-
-    def peek(self):
-        return self.heap[0].key
 
     def insert(self, key, value):
         node = Node(key, value)
@@ -274,6 +350,14 @@ def isValueInHeap(value, heap):
 
 
 def main():
+    pass
+
+
+if __name__ == '__main__':
+    main()
+
+
+'''
     array = [17, 13, 45, 34, 87, 31, 3, 10, 8, 2, 1, 9]
     minHeap = MaxHeap([Node(i, i) for i in array])
     assert isMaxHeapPropertySatisfied(minHeap.heap)
@@ -318,7 +402,4 @@ def main():
     while len(minHeap) > 0:
         minHeap.deleteMax()
         assert checkIndex(minHeap.heap, minHeap.indices)
-
-
-if __name__ == '__main__':
-    main()
+'''
