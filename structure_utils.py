@@ -8,6 +8,13 @@ class Node:
         self.value = value
 
 
+class LinkedList:
+
+    def __init__(self):
+        self.head = None
+        self.tail = None
+
+
 class BST:
 
     def __init__(self, value):
