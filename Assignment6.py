@@ -15,23 +15,20 @@ class WeightedGraph:
         return info
 
     def fastDijkstraShortestPath(self, start):
-        visited = {start: True}
+        visited = {}
         shortest_paths = {vertex: float('inf') for vertex in self.graph.keys()}
         shortest_paths[start] = 0
-        minHeap = MinHeap([Node(key, float('inf')) for key in self.graph.keys()])
-        minHeap.update(start, 0)
+        minHeap = MinHeap([Node(key, value) for key, value in shortest_paths.items()])
+
         while len(visited) < self.num_vertices:
             node = minHeap.deleteMin()
             vertex, min_distance = node.key, node.value
             visited[vertex] = True
             for v in self.graph[vertex]:
                 if v not in visited:
-                    edge_length = self.graph[vertex][v]
-                    d = min_distance + edge_length
-                    current_distance = shortest_paths[v]
-                    if d < current_distance:
-                        shortest_paths[v] = d
-                        minHeap.update(v, d)
+                    d = min_distance + self.graph[vertex][v]
+                    shortest_paths[v] = min(d, shortest_paths[v])
+                    minHeap.update(v, shortest_paths[v])
 
         return shortest_paths
 
