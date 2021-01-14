@@ -15,12 +15,18 @@ class LinkedList:
         self.tail = None
 
 
-class BST:
+class Tree:
 
     def __init__(self, value):
         self.value = value
         self.left = None
         self.right = None
+
+
+class BST(Tree):
+
+    def __init__(self, value):
+        super().__init__(value)
 
     def insert(self, value):
         node = self
