@@ -37,26 +37,62 @@ def findShortestDistanceOfSingleWord(words, word):
 
     return shortestSoFar
 
+# O(n) time | O(m) space - where n is length of "words" list, m is the length of "given_words" list
+def minDistances(words, given_words):
+    if not words:
+        return float('inf')
+    cache = {}
+    # bookkeeping parameter
+    # key -> string | value -> number of string
+    for word in given_words:
+        if word in cache:
+            cache[word] += 1
+        else:
+            cache[word] = 1
+    slow, fast = 0, -1
+    match_count = 0
+    min_distance = float('inf')
+    while True:
+        if match_count < len(cache):
+            fast += 1
+            current = words[fast]
+            if current in cache:
+                if cache[current] == 1:
+                    match_count += 1
+                cache[current] -= 1
+        if match_count == len(cache):
+            min_distance = min(min_distance, fast - slow)
+            current = words[slow]
+            if current in cache:
+                if cache[current] == 0:
+                    match_count -= 1
+                cache[current] += 1
+            slow += 1
+        # terminate condition
+        if fast == len(words) - 1 and match_count != len(cache):
+            break
+
+    return min_distance
+
 
 def main():
 
-    testcases = [
-        ['a', 'b', 'c', 'd', 'a', 'd', 'f'],  # ans -> 1
-        ['a', 'a', 'a', 'b', 'b', 'c', 'f'],  # ans -> 1
-        ['a', 'd', 'b', 'c', 'a', 'a', 'f'],  # ans -> 2
-        ['a', 'c', 'c', 'c', 'c', 'c', 'c'],  # ans -> inf
-        ['a', 'e', 'c', 'd', 'b', 'r', 'a'],  # ans -> 2
-        [], # ans -> inf
-        ['a', 'c', 'd', 'f', 'e', 'r', 'b'],   # ans -> 6
-        ['e', 'a', 'e', 'e', 'b', 'e', 'e', 'b', 'e', 'e', 'b', 'c', 'c', 'a', 'a']  # ans -> 3
+    testcases = [  # test distance(a, b, c, c)
+        ['a', 'b', 'c', 'd', 'a', 'c', 'f'],  # ans -> 4
+        ['c', 'a', 'a', 'b', 'b', 'c', 'f'],  # ans -> 5
+        ['a', 'd', 'b', 'c', 'a', 'a', 'f'],  # ans -> inf
+        ['a', 'c', 'c', 'c', 'b', 'c', 'c'],  # ans -> 4
+        ['a', 'e', 'c', 'd', 'b', 'c', 'a'],  # ans -> 4
+        [],                                   # ans -> inf
+        ['a', 'c', 'd', 'f', 'e', 'r', 'b', 'r', 'e', 'g', 'c', 'y', 'u', 'a', 'b'],  # ans -> 10
+        ['e', 'a', 'e', 'e', 'b', 'e', 'e', 'b', 'e', 'e', 'b', 'c', 'c', 'a', 'a']   # ans -> 3
     ]
-    ans = [1, 1, 2, float('inf'), 2, float('inf'), 6, 3]
-    ans2 = [4, 1, 1, float('inf'), 6, float('inf'), float('inf'), 1]
+    ans = [4, 5, float('inf'), 4, 4, float('inf'), 10, 3]
+
     for i in range(len(testcases)):
-        d = findShortestDistance(testcases[i], 'a', 'b')
+        d = minDistances(testcases[i], ['a', 'b', 'c', 'c'])
         print(f"{ans[i]} ---> {d}")
         assert d == ans[i]
-
 
     return 0
 

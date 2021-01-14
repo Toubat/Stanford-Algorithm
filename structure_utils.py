@@ -322,6 +322,40 @@ class MaxHeap(Heap):
         return 0
 
 
+class UnionFind:
+
+    def __init__(self, nodes):
+        self.leaders = {node: node for node in nodes}
+        self.components = {root: [root] for root in nodes}
+        self.num_components = len(nodes)
+
+    def find(self, node_i, node_j):
+        return self.leaders[node_i] == self.leaders[node_j]
+
+    def union(self, node_i, node_j):
+        if self.find(node_i, node_j):
+            return 0
+
+        leader_i, leader_j = self.leaders[node_i], self.leaders[node_j]
+        if len(self.components[leader_i]) < len(self.components[leader_j]):
+            old, new = leader_i, leader_j
+        else:
+            old, new = leader_j, leader_i
+
+        self.components[new] += self.components[old]
+        self.changeLeader(old, new)
+        self.components.pop(old)
+        self.num_components -= 1
+
+        return 0
+
+    def changeLeader(self, old_leader, new_leader):
+        for node in self.components[old_leader]:
+            self.leaders[node] = new_leader
+
+        return 0
+
+
 def isMinHeapPropertySatisfied(array):
     for currentIdx in range(1, len(array)):
         parentIdx = (currentIdx - 1) // 2
