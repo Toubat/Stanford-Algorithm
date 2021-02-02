@@ -27,6 +27,7 @@ class BST(Tree):
 
     def __init__(self, value):
         super().__init__(value)
+        self.frequency = None
 
     def insert(self, value):
         node = self
@@ -114,6 +115,27 @@ class BST(Tree):
         parent.replace(node, None)
 
         return node.value
+
+    def optimalBinaryTree(self, frequency):
+        self.setFrequency(frequency)
+        cache = [[0 for _ in frequency] for _ in frequency]
+        for i in range(len(frequency)):
+            cache[i][i] = frequency[i]
+        for s in range(1, len(frequency)):
+            for i in range(len(frequency)):
+                if i + s == len(frequency):
+                    break
+                values = []
+                for r in range(i, i+s+1):
+                    left = cache[i][r-1] if r >= 0 else 0
+                    right = cache[r+1][i+s] if r + 1 < len(frequency) else 0
+                    values.append(left + right)
+                cache[i][i+s] = sum(frequency[i:i+s+1]) + min(values)
+
+        return cache[0][-1]
+
+    def setFrequency(self, frequency):
+        self.frequency = frequency
 
 
 class Heap:
@@ -362,6 +384,28 @@ class UnionFind:
         return 0
 
 
+class Graph:
+
+    def __init__(self, edges=None):
+        self.graph = self.buildAdjacencyList(edges)
+        self.num_vertices = len(self.graph)
+        self.num_edges = len(edges)
+
+    def buildAdjacencyList(self, edges):
+        if edges is None:
+            return []
+        for edge in edges:
+            u, v = edge
+            if u not in self.graph:
+                self.graph[u] = {v: True}
+            else:
+                self.graph[u][v] = True
+            if v not in self.graph:
+                self.graph[v] = {u: True}
+            else:
+                self.graph[v][u] = True
+
+
 def isMinHeapPropertySatisfied(array):
     for currentIdx in range(1, len(array)):
         parentIdx = (currentIdx - 1) // 2
@@ -397,56 +441,9 @@ def isValueInHeap(value, heap):
 
 
 def main():
-    pass
-
+    bst = BST(0)
+    a = bst.optimalBinaryTree([0.2, 0.05, 0.17, 0.1, 0.2, 0.03, 0.25])
+    print(a)
 
 if __name__ == '__main__':
     main()
-
-
-'''
-    array = [17, 13, 45, 34, 87, 31, 3, 10, 8, 2, 1, 9]
-    minHeap = MaxHeap([Node(i, i) for i in array])
-    assert isMaxHeapPropertySatisfied(minHeap.heap)
-    assert checkIndex(minHeap.heap, minHeap.indices)
-    assert minHeap.deleteMax().value == 87
-    assert checkIndex(minHeap.heap, minHeap.indices)
-    assert isMaxHeapPropertySatisfied(minHeap.heap)
-    print("passed A")
-    for i in range(1, 5000):
-        value = random.randint(1, 1000)
-        if isValueInHeap(value, minHeap.heap):
-            continue
-        minHeap.insert(value, value)
-        assert checkIndex(minHeap.heap, minHeap.indices)
-        assert isMaxHeapPropertySatisfied(minHeap.heap)
-    print(minHeap)
-    print("Passed B")
-    for i in range(1, 5000):
-        if len(minHeap) == 0:
-            break
-        node = minHeap.heap[random.randint(0, len(minHeap) - 1)]
-        n = minHeap.removeKey(node.key)
-        #  print(f"node.value: {node.value}  value: {va}")
-        assert node.value == n.value
-        assert len(minHeap) == len(minHeap.indices)
-        assert checkIndex(minHeap.heap, minHeap.indices)
-        assert isMaxHeapPropertySatisfied(minHeap.heap)
-    print("Passed C")
-
-    array = [i for i in range(1, 100)]
-    random.shuffle(array)
-    minHeap = MaxHeap([Node(i, i) for i in array])
-    for i in range(1000):
-        rand = random.randint(101, 2000)
-        key = minHeap.heap[random.randint(0, len(minHeap) - 1)].key
-        if isValueInHeap(rand, minHeap.heap):
-            continue
-        minHeap.update(key, rand)
-        assert checkIndex(minHeap.heap, minHeap.indices)
-        assert isMaxHeapPropertySatisfied(minHeap.heap)
-    print("Passed D")
-    while len(minHeap) > 0:
-        minHeap.deleteMax()
-        assert checkIndex(minHeap.heap, minHeap.indices)
-'''
